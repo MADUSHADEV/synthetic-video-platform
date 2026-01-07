@@ -1,0 +1,72 @@
+services:
+  # --- DATABASES ---
+  ai_video_library_user_db:
+    image: postgres:15
+    container_name: ai_video_library_user_db
+    environment:
+      POSTGRES_DB: ${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_DB}
+      POSTGRES_USER: ${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_USER}
+      POSTGRES_PASSWORD: ${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ai_video_library_user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_USER} -d ${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # --- MIGRATORS ---
+  migrator-user_db:
+    build:
+      context: ./db-mg-service
+    # The command tells Liquibase how to connect to the DB inside the Docker network
+    # and what to do (the 'update' command applies migrations).
+    environment:
+      # These are the variables read by the Liquibase entrypoint script
+      - LIQUIBASE_COMMAND_URL=${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_URL}
+      - LIQUIBASE_COMMAND_USERNAME=${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_USER}
+      - LIQUIBASE_COMMAND_PASSWORD=${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_PASSWORD}
+      - LIQUIBASE_COMMAND_CHANGELOG_FILE=changelog/user-db/db.changelog-master.yaml
+    # The command is now extremely simple. It just says "run the update command".
+    # All the details (URL, user, etc.) are taken from the environment variables above.
+    command: update
+    depends_on:
+      ai_video_library_user_db:
+        condition: service_healthy
+    networks:
+      - backend
+
+  # --- CACHES ---
+  ai_video_library_redis:
+    image: redis:7.4-alpine
+    container_name: ai_video_library_redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    command: [
+      "redis-server",
+      "--appendonly", "yes",           # enable AOF persistence
+      "--save", "60", "1",             # snapshot every 60 sec if at least 1 change
+      "--maxmemory", "256mb",          # limit memory to avoid runaway usage
+      "--maxmemory-policy", "allkeys-lru" # eviction policy for caching
+    ]
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    environment:
+      TZ: UTC
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  ai_video_library_user_db_data:
