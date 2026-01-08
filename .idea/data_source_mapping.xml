@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/db-mg-service/src/main/resources/db/changelog/changes/001-create-initial-tables.sql" value="f05cebba-a3b6-45cf-87f9-aec790f1cb89" />
+  </component>
+</project>

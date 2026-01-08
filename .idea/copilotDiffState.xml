@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/db-mg-service/src/main/resources/db/changelog/user-db/db.changelog-master.yaml">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/db-mg-service/src/main/resources/db/changelog/user-db/db.changelog-master.yaml" />
+              <option name="originalContent" value="databaseChangeLog:&#10;  - includeAll:&#10;      path: ../changes&#10;      relativeToChangelogFile: true" />
+              <option name="updatedContent" value="databaseChangeLog:&#10;  - includeAll:&#10;      path: ../changes&#10;      relativeToChangelogFile: true" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

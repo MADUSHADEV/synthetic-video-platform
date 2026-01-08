@@ -30,7 +30,7 @@ services:
       - LIQUIBASE_COMMAND_URL=${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_URL}
       - LIQUIBASE_COMMAND_USERNAME=${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_USER}
       - LIQUIBASE_COMMAND_PASSWORD=${AI_VIDEO_LIBRARY_IDENTITY_SERVICE_PASSWORD}
-      - LIQUIBASE_COMMAND_CHANGELOG_FILE=changelog/user-db/db.changelog-master.yaml
+      - LIQUIBASE_COMMAND_CHANGELOG_FILE=src/main/resources/db/changelog/user-db/db.changelog-master.yaml
     # The command is now extremely simple. It just says "run the update command".
     # All the details (URL, user, etc.) are taken from the environment variables above.
     command: update
