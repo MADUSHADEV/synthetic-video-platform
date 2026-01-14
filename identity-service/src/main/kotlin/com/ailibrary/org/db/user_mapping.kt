@@ -49,5 +49,5 @@ fun daoToSaveDTO(dao: UserDAO) = UserSaveDTO(
     firstName = dao.firstName,
     lastName = dao.lastName,
     email = dao.email,
-    passwordHash = dao.passwordHash
+    password = dao.passwordHash
 )

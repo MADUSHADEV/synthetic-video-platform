@@ -19,9 +19,8 @@ repositories {
 
 dependencies {
     implementation(project(":core"))
-
     implementation(Ktor.contentNegotiation)
-    implementation(Ktor.ServerStatusPages)
+    implementation(Ktor.SerializationKotlinxJson)
     implementation(Ktor.ServerHostCommon)
     implementation(Ktor.PostgreSQL)
     implementation(Ktor.ExposedCore)
@@ -40,11 +39,9 @@ dependencies {
     implementation(Ktor.MicrometerBom)
     implementation(Ktor.MicrometerRegistryPrometheus)
     implementation(Ktor.MicrometerCore)
-
-
-
     implementation(Ktor.SeverNetty)
     implementation(Ktor.ServerConfig)
+
 
     testImplementation(kotlin("test"))
 }

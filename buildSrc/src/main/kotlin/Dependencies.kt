@@ -12,7 +12,7 @@ object Versions {
     const val kafkaClient = "3.9.1"
     const val micrometer = "1.14.5"
     const val valiktor = "0.12.0"
-    const val koin = "2.0.1"
+    const val koin = "4.1.2-Beta1"
     const val liquibase = "4.27.0"
     const val redis = "6.7.1.RELEASE"
 }
@@ -20,8 +20,8 @@ object Versions {
 object Ktor {
 
     // Core dependencies
-    const val ServerCore = "io.ktor:ktor-server-core:${Versions.ktor}"
     const val contentNegotiation = "io.ktor:ktor-server-content-negotiation:${Versions.ktor}"
+    const val ServerCore = "io.ktor:ktor-server-core:${Versions.ktor}"
     const val SerializationKotlinxJson = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
 
     // Server netty dependency

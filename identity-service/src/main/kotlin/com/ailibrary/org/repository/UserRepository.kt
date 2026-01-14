@@ -2,17 +2,22 @@ package com.ailibrary.org.repository
 
 import com.ailibrary.org.contract.UserContract
 import com.ailibrary.org.db.UserDAO
+import com.ailibrary.org.db.UserTable
 import com.ailibrary.org.db.daoToSaveDTO
 import com.ailibrary.org.db.suspendTransaction
+import com.ailibrary.org.dto.UserChangePasswordDTO
+import com.ailibrary.org.dto.UserDeleteDTO
 import com.ailibrary.org.dto.UserLoginDTO
 import com.ailibrary.org.dto.UserSaveDTO
+import com.ailibrary.org.dto.UserUpdateDTO
 import com.ailibrary.org.sharedDTOs.UserRespondDTO
+import org.jetbrains.exposed.sql.and
 import org.mindrot.jbcrypt.BCrypt
 
 class UserRepository : UserContract {
     override suspend fun saveUser(userData: UserSaveDTO): UserRespondDTO = suspendTransaction {
 
-        val hashedPassword: String = BCrypt.hashpw(userData.passwordHash, BCrypt.gensalt())
+        val hashedPassword: String = BCrypt.hashpw(userData.password, BCrypt.gensalt())
 
         val userDAO = UserDAO.new {
             firstName = userData.firstName
@@ -32,25 +37,53 @@ class UserRepository : UserContract {
     }
 
     override suspend fun getUserByEmail(email: String): UserRespondDTO = suspendTransaction {
-        TODO("Not yet implemented")
+        val userDAO = UserDAO.find { UserTable.email eq email }.limit(1).firstOrNull()
+            ?: throw NoSuchElementException("User with email $email not found")
+
+        return@suspendTransaction UserRespondDTO(
+            id = userDAO.id.value,
+            firstName = userDAO.firstName,
+            lastName = userDAO.lastName,
+            email = userDAO.email
+        )
     }
 
-    override suspend fun updateUser(user: UserSaveDTO): UserRespondDTO = suspendTransaction {
-        TODO("Not yet implemented")
+    override suspend fun updateUser(user: UserUpdateDTO): UserRespondDTO = suspendTransaction {
+        val userDAO = UserDAO.findByIdAndUpdate(user.id) {
+            it.email = user.email
+            it.firstName = user.firstName
+            it.lastName = user.lastName
+        } ?: throw NoSuchElementException("User not found")
+
+        return@suspendTransaction UserRespondDTO(
+            firstName = userDAO.firstName,
+            lastName = userDAO.lastName,
+            email = userDAO.email
+        )
+
     }
 
-    override suspend fun deleteUserByEmail(email: String): UserRespondDTO = suspendTransaction {
-        TODO("Not yet implemented")
+    override suspend fun deleteUserById(user: UserDeleteDTO): UserRespondDTO = suspendTransaction {
+        val userDAO = UserDAO.find { (UserTable.id eq user.id) and (UserTable.email eq user.email) }
+            .firstOrNull() ?: throw NoSuchElementException("User with id ${user.id} and email ${user.email} not found")
+
+        userDAO.delete()
+
+        return@suspendTransaction UserRespondDTO(
+            firstName = userDAO.firstName,
+            lastName = userDAO.lastName,
+            email = userDAO.email
+        )
     }
 
     override suspend fun checkUserExists(email: String): Boolean = suspendTransaction {
-        TODO("Not yet implemented")
+        return@suspendTransaction UserDAO.find { (UserTable.email eq email) }.count() > 0
     }
 
     override suspend fun findUser(userLoginData: UserLoginDTO): UserRespondDTO = suspendTransaction {
 
         val userDAO = UserDAO.find {
-            (com.ailibrary.org.db.UserTable.email eq userLoginData.email)
+            (UserTable.email eq userLoginData.email)
         }.firstOrNull()
 
         // Check if user exists and password matches
@@ -67,6 +100,42 @@ class UserRepository : UserContract {
     }
 
     override suspend fun findUserById(id: Int): UserRespondDTO = suspendTransaction {
-        TODO("Not yet implemented")
+        val userDAO = UserDAO.findById(id)
+            ?: throw NoSuchElementException("User with id $id not found")
+
+        return@suspendTransaction UserRespondDTO(
+            firstName = userDAO.firstName,
+            lastName = userDAO.lastName,
+            email = userDAO.email
+        )
     }
+
+    override suspend fun getUserList(): List<UserRespondDTO> {
+        return suspendTransaction {
+            UserDAO.all().map { userDAO ->
+                UserRespondDTO(
+                    id = userDAO.id.value,
+                    firstName = userDAO.firstName,
+                    lastName = userDAO.lastName,
+                    email = userDAO.email
+                )
+            }
+        }
+    }
+
+    override suspend fun changeUserPassword(userChangePasswordDTO: UserChangePasswordDTO): UserRespondDTO =
+        suspendTransaction {
+            val userDAO = UserDAO.findById(userChangePasswordDTO.id)
+                ?: throw NoSuchElementException("User with id ${userChangePasswordDTO.id} not found")
+            val hashedPassword: String = BCrypt.hashpw(userChangePasswordDTO.newPassword, BCrypt.gensalt())
+
+            userDAO.passwordHash = hashedPassword
+
+            return@suspendTransaction UserRespondDTO(
+                id = userDAO.id.value,
+                firstName = userDAO.firstName,
+                lastName = userDAO.lastName,
+                email = userDAO.email
+            )
+        }
 }
