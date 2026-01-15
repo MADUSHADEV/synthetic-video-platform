@@ -4,6 +4,7 @@ import com.ailibrary.org.auth.configureSecurity
 import com.ailibrary.org.config.configureDatabases
 import com.ailibrary.org.di.applyIdentityModule
 import com.ailibrary.org.routes.V1.configureIdentityRoutesV1
+import com.ailibrary.org.utils.configureRespondExceptionHandler
 import io.ktor.server.application.*
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
@@ -20,6 +21,7 @@ fun Application.module() {
     }
     configureSecurity()
     configureDatabases()
+    configureRespondExceptionHandler()
     configureIdentityRoutesV1()
 }
 

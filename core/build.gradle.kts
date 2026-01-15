@@ -15,6 +15,8 @@ repositories {
 dependencies {
     implementation(Ktor.contentNegotiation)
     implementation(Ktor.ServerCore)
+    implementation(Ktor.ServerStatusPages)
+    implementation(Ktor.ServerHostCommon)
     implementation(Ktor.SerializationKotlinxJson)
     implementation(Ktor.ServerAuth)
     implementation(Ktor.ServerAuthJwt)
@@ -24,6 +26,7 @@ dependencies {
     implementation(Ktor.Resilience4jRetry)
     implementation(Ktor.LogbackClassic)
     implementation(Ktor.LettuceCore)
+    implementation(Ktor.Valiktor)
 
 
     testImplementation(kotlin("test"))

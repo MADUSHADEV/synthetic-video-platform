@@ -22,6 +22,7 @@ dependencies {
     implementation(Ktor.contentNegotiation)
     implementation(Ktor.SerializationKotlinxJson)
     implementation(Ktor.ServerHostCommon)
+    implementation(Ktor.ServerStatusPages)
     implementation(Ktor.PostgreSQL)
     implementation(Ktor.ExposedCore)
     implementation(Ktor.ExposedJdbc)
