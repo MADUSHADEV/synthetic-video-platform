@@ -5,6 +5,7 @@ import com.ailibrary.org.dto.UserDeleteDTO
 import com.ailibrary.org.dto.UserLoginDTO
 import com.ailibrary.org.dto.UserSaveDTO
 import com.ailibrary.org.dto.UserUpdateDTO
+import com.ailibrary.org.protocol.ResponseProtocol
 import com.ailibrary.org.service.IdentityService
 import com.ailibrary.org.validation.validateOrThrow
 import io.ktor.http.HttpStatusCode
@@ -12,6 +13,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.delete
@@ -23,7 +25,6 @@ import org.koin.ktor.ext.inject
 
 fun Application.configureIdentityRoutesV1() {
 
-
     // Inject the IdentityService using Koin
     val identityService: IdentityService by inject<IdentityService>()
 
@@ -32,12 +33,13 @@ fun Application.configureIdentityRoutesV1() {
         json()
     }
 
-
     //TODO:
     // Validation : done
-    // Send response same format
-    // Token Generation
-
+    // Send response same format : done
+    // Token Generation : done
+    // Exception Handling : done
+    // Validate profile update data : done
+    // Learn Koin DSL for better DI management : to be done
 
     // Configure the routing for the application
     routing {
@@ -50,7 +52,14 @@ fun Application.configureIdentityRoutesV1() {
                 userData.validateOrThrow()
 
                 val result = identityService.SignUp(userData)
-                call.respond(HttpStatusCode.OK, result)
+                call.respond(
+                    HttpStatusCode.Created,
+                    ResponseProtocol.success(
+                        message = "User registered successfully",
+                        data = result,
+                        code = HttpStatusCode.Created.value
+                    )
+                )
 
             }
 
@@ -61,29 +70,50 @@ fun Application.configureIdentityRoutesV1() {
                 loginData.validateOrThrow()
 
                 val result = identityService.Login(loginData)
-                call.respond(HttpStatusCode.OK, result)
+                call.respond(
+                    HttpStatusCode.OK,
+                    ResponseProtocol.success(
+                        message = "User logged in successfully",
+                        data = result,
+                        code = HttpStatusCode.OK.value
+                    )
+                )
 
             }
+            authenticate("auth-jwt") {
 
-            put("/editUser") {
+                put("/editUser") {
 
-                val userData = call.receive<UserUpdateDTO>()
-                val result = identityService.EditUser(userData)
-                call.respond(HttpStatusCode.OK, result)
+                    val userData = call.receive<UserUpdateDTO>()
+                    val result = identityService.EditUser(userData)
+                    call.respond(
+                        HttpStatusCode.OK,
+                        ResponseProtocol.success(
+                            message = "User updated successfully",
+                            data = result,
+                            code = HttpStatusCode.OK.value
+                        )
+                    )
 
-            }
+                }
 
-            put("/changePassword") {
+                put("/changePassword") {
 
+                    val userData = call.receive<UserChangePasswordDTO>()
 
-                val userData = call.receive<UserChangePasswordDTO>()
+                    userData.validateOrThrow()
 
-                userData.validateOrThrow()
+                    val result = identityService.ChangePassword(userData)
+                    call.respond(
+                        HttpStatusCode.OK,
+                        ResponseProtocol.success(
+                            message = "Password changed successfully",
+                            data = result,
+                            code = HttpStatusCode.OK.value
+                        )
+                    )
 
-                val result = identityService.ChangePassword(userData)
-                call.respond(HttpStatusCode.OK, result)
-
-
+                }
             }
 
             delete("/deleteUser") {
@@ -93,7 +123,14 @@ fun Application.configureIdentityRoutesV1() {
                 userData.validateOrThrow()
 
                 val result = identityService.DeleteUser(userData)
-                call.respond(HttpStatusCode.OK, result)
+                call.respond(
+                    HttpStatusCode.OK,
+                    ResponseProtocol.success(
+                        message = "User deleted successfully",
+                        data = result,
+                        code = HttpStatusCode.OK.value
+                    )
+                )
 
             }
 

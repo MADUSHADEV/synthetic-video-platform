@@ -23,6 +23,8 @@ dependencies {
     implementation(Ktor.SerializationKotlinxJson)
     implementation(Ktor.ServerHostCommon)
     implementation(Ktor.ServerStatusPages)
+    implementation(Ktor.ServerAuth)
+    implementation(Ktor.ServerAuthJwt)
     implementation(Ktor.PostgreSQL)
     implementation(Ktor.ExposedCore)
     implementation(Ktor.ExposedJdbc)
