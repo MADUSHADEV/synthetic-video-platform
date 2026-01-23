@@ -4,6 +4,7 @@ import com.ailibrary.org.dto.UserChangePasswordDTO
 import com.ailibrary.org.dto.UserDeleteDTO
 import com.ailibrary.org.dto.UserLoginDTO
 import com.ailibrary.org.dto.UserSaveDTO
+import com.ailibrary.org.dto.UserStatusChangeDTO
 import com.ailibrary.org.dto.UserUpdateDTO
 import com.ailibrary.org.sharedDTOs.UserRespondDTO
 
@@ -17,4 +18,5 @@ interface UserContract {
     suspend fun findUser(userLoginData: UserLoginDTO): UserRespondDTO
     suspend fun findUserById(id: Int): UserRespondDTO
     suspend fun changeUserPassword(userChangePasswordDTO: UserChangePasswordDTO): UserRespondDTO
+    suspend fun changeUserStatus(userLogoutData: UserStatusChangeDTO): UserRespondDTO
 }

@@ -24,7 +24,7 @@ fun Application.configureRespondExceptionHandler() {
                 ResponseProtocol.failed(
                     message = "Validation failed",
                     code = HttpStatusCode.BadRequest.value,
-                    errors = errors.map { it["message"] ?: "Invalid value" }
+                    errors = errors.map { mapOf("property" to it["property"], "message" to it["message"]) }
                 )
             )
         }

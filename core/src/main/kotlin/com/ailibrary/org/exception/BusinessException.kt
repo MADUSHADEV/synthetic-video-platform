@@ -27,3 +27,8 @@ class UserAlreadyExistsException(email: String) : BusinessException(
     HttpStatusCode.Conflict
 )
 
+class UserStatusNotFoundException(status: String) : BusinessException(
+    "User status '$status' not found",
+    HttpStatusCode.NotFound
+)
+

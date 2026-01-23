@@ -8,5 +8,6 @@ data class UserRespondDTO(
     val firstName: String,
     val lastName: String,
     val email: String,
+    val status: String? = null,
     val token: String? = "Token will be generated after login"
 )

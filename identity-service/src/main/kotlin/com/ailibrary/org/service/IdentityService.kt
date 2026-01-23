@@ -2,10 +2,12 @@ package com.ailibrary.org.service
 
 import com.ailibrary.org.dto.UserChangePasswordDTO
 import com.ailibrary.org.dto.UserDeleteDTO
+import com.ailibrary.org.dto.UserLogOutDTO
 import com.ailibrary.org.dto.UserLoginDTO
 import com.ailibrary.org.dto.UserSaveDTO
 import com.ailibrary.org.dto.UserUpdateDTO
 import com.ailibrary.org.exception.UserAlreadyExistsException
+import com.ailibrary.org.exception.UserNotFoundByIdException
 import com.ailibrary.org.exception.UserNotFoundException
 import com.ailibrary.org.repository.UserRepository
 import com.ailibrary.org.sharedDTOs.UserRespondDTO
@@ -46,16 +48,40 @@ class IdentityService(
             firstName = userData.firstName,
             lastName = userData.lastName,
             email = userData.email,
+            status = userData.status,
             token = token
         )
     }
 
     suspend fun EditUser(userUpdateDTO: UserUpdateDTO): UserRespondDTO {
-        val checkUserExis: Boolean = userRepository.checkUserExists(userUpdateDTO.email)
-        if (!checkUserExis) {
-            throw UserNotFoundException(userUpdateDTO.email)
+        val checkUserExis: UserRespondDTO = userRepository.findUserById(userUpdateDTO.id)
+        checkUserExis.id?.let {
+            if (it <= 0) {
+                throw UserNotFoundException(userUpdateDTO.email)
+            }
         }
-        return userRepository.updateUser(userUpdateDTO)
+        val updatedUserData: UserRespondDTO = userRepository.updateUser(userUpdateDTO)
+
+        //Generate new token with updated user data
+        val token: String = JWT.create()
+            .withAudience(System.getenv("JWT_AUDIENCE"))
+            .withIssuer(System.getenv("JWT_ISSUER"))
+            .withArrayClaim("userData", arrayOf(updatedUserData.id.toString(), updatedUserData.email))
+            .withExpiresAt(
+                java.util.Date(
+                    System.currentTimeMillis() + 3_600_000
+                )
+            )
+            .sign(Algorithm.HMAC256(System.getenv("JWT_SECRET")))
+
+        return UserRespondDTO(
+            id = updatedUserData.id,
+            firstName = updatedUserData.firstName,
+            lastName = updatedUserData.lastName,
+            email = updatedUserData.email,
+            status = updatedUserData.status,
+            token = token
+        )
     }
 
     suspend fun ChangePassword(userChangePasswordDTO: UserChangePasswordDTO): UserRespondDTO {
@@ -74,4 +100,13 @@ class IdentityService(
         return userRepository.deleteUserById(user)
     }
 
+    suspend fun Logout(userLogOutDTO: UserLogOutDTO): UserRespondDTO {
+        val checkUserExist = userRepository.findUserById(userLogOutDTO.id)
+        checkUserExist.id?.let {
+            if (it <= 0) {
+                throw UserNotFoundByIdException(userLogOutDTO.id)
+            }
+        }
+        return userRepository.changeUserStatus(userLogOutDTO)
+    }
 }

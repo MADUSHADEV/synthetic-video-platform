@@ -2,6 +2,7 @@ package com.ailibrary.org.validation
 
 import com.ailibrary.org.dto.UserChangePasswordDTO
 import com.ailibrary.org.dto.UserDeleteDTO
+import com.ailibrary.org.dto.UserLogOutDTO
 import com.ailibrary.org.dto.UserLoginDTO
 import com.ailibrary.org.dto.UserSaveDTO
 import com.ailibrary.org.dto.UserUpdateDTO
@@ -28,12 +29,12 @@ fun UserSaveDTO.validateOrThrow() {
             .isNotNull()
             .isNotBlank<UserSaveDTO>()
             .isNotEmpty<UserSaveDTO>()
-            .hasSize<UserSaveDTO>(min = 5, max = 50)
+            .hasSize<UserSaveDTO>(min = 1, max = 50)
         validate(UserSaveDTO::lastName)
             .isNotNull()
             .isNotBlank<UserSaveDTO>()
             .isNotEmpty<UserSaveDTO>()
-            .hasSize<UserSaveDTO>(min = 5, max = 50)
+            .hasSize<UserSaveDTO>(min = 1, max = 50)
         validate(UserSaveDTO::password)
             .isNotNull()
             .isNotBlank<UserSaveDTO>()
@@ -97,5 +98,14 @@ fun UserLoginDTO.validateOrThrow() {
             .isNotEmpty<UserLoginDTO>()
             .matches(PasswordRegex)
 
+    }
+}
+
+fun UserLogOutDTO.validateOrThrow() {
+    validate(this) {
+        validate(UserLogOutDTO::status)
+            .isNotNull()
+            .isNotBlank<UserLogOutDTO>()
+            .isNotEmpty<UserLogOutDTO>()
     }
 }

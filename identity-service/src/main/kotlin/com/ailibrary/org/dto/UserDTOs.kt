@@ -35,3 +35,8 @@ data class UserChangePasswordDTO(
     val email: String,
     val newPassword: String
 )
+@Serializable
+data class UserStatusChangeDTO(
+    val id: Int,
+    val status: String
+)

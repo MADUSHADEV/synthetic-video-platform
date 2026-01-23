@@ -1,18 +1,9 @@
 package com.ailibrary.org.repository
 
 import com.ailibrary.org.contract.UserContract
-import com.ailibrary.org.db.UserDAO
-import com.ailibrary.org.db.UserTable
-import com.ailibrary.org.db.daoToSaveDTO
-import com.ailibrary.org.db.suspendTransaction
-import com.ailibrary.org.dto.UserChangePasswordDTO
-import com.ailibrary.org.dto.UserDeleteDTO
-import com.ailibrary.org.dto.UserLoginDTO
-import com.ailibrary.org.dto.UserSaveDTO
-import com.ailibrary.org.dto.UserUpdateDTO
-import com.ailibrary.org.exception.InvalidCredentialsException
-import com.ailibrary.org.exception.UserNotFoundByIdException
-import com.ailibrary.org.exception.UserNotFoundException
+import com.ailibrary.org.db.*
+import com.ailibrary.org.dto.*
+import com.ailibrary.org.exception.*
 import com.ailibrary.org.sharedDTOs.UserRespondDTO
 import org.jetbrains.exposed.sql.and
 import org.mindrot.jbcrypt.BCrypt
@@ -22,33 +13,25 @@ class UserRepository : UserContract {
 
         val hashedPassword: String = BCrypt.hashpw(userData.password, BCrypt.gensalt())
 
+        val activeStatus = UserStatusDAO.find { UserStatusTable.name eq "Active" }.firstOrNull()
+            ?: throw IllegalStateException("Default status 'Active' not found in database")
+
         val userDAO = UserDAO.new {
             firstName = userData.firstName
             lastName = userData.lastName
             email = userData.email
             passwordHash = hashedPassword
+            status = activeStatus
         }
 
-        val userSavedData: UserSaveDTO = daoToSaveDTO(userDAO)
-
-        return@suspendTransaction UserRespondDTO(
-            id = userDAO.id.value,
-            firstName = userSavedData.firstName,
-            lastName = userSavedData.lastName,
-            email = userSavedData.email
-        )
+        return@suspendTransaction daoToResponseDTO(userDAO)
     }
 
     override suspend fun getUserByEmail(email: String): UserRespondDTO = suspendTransaction {
         val userDAO = UserDAO.find { UserTable.email eq email }.limit(1).firstOrNull()
             ?: throw UserNotFoundException(email)
 
-        return@suspendTransaction UserRespondDTO(
-            id = userDAO.id.value,
-            firstName = userDAO.firstName,
-            lastName = userDAO.lastName,
-            email = userDAO.email
-        )
+        return@suspendTransaction daoToResponseDTO(userDAO)
     }
 
     override suspend fun updateUser(user: UserUpdateDTO): UserRespondDTO = suspendTransaction {
@@ -58,11 +41,7 @@ class UserRepository : UserContract {
             it.lastName = user.lastName
         } ?: throw UserNotFoundByIdException(user.id)
 
-        return@suspendTransaction UserRespondDTO(
-            firstName = userDAO.firstName,
-            lastName = userDAO.lastName,
-            email = userDAO.email
-        )
+        return@suspendTransaction daoToResponseDTO(userDAO)
 
     }
 
@@ -70,13 +49,10 @@ class UserRepository : UserContract {
         val userDAO = UserDAO.find { (UserTable.id eq user.id) and (UserTable.email eq user.email) }
             .firstOrNull() ?: throw UserNotFoundByIdException(user.id)
 
+        val response = daoToResponseDTO(userDAO)
         userDAO.delete()
 
-        return@suspendTransaction UserRespondDTO(
-            firstName = userDAO.firstName,
-            lastName = userDAO.lastName,
-            email = userDAO.email
-        )
+        return@suspendTransaction response
     }
 
     override suspend fun checkUserExists(email: String): Boolean = suspendTransaction {
@@ -91,12 +67,7 @@ class UserRepository : UserContract {
 
         // Check if user exists and password matches
         if (userDAO != null && BCrypt.checkpw(userLoginData.password, userDAO.passwordHash)) {
-            return@suspendTransaction UserRespondDTO(
-                id = userDAO.id.value,
-                firstName = userDAO.firstName,
-                lastName = userDAO.lastName,
-                email = userDAO.email
-            )
+            return@suspendTransaction daoToResponseDTO(userDAO)
         } else {
             throw InvalidCredentialsException()
         }
@@ -106,22 +77,13 @@ class UserRepository : UserContract {
         val userDAO = UserDAO.findById(id)
             ?: throw UserNotFoundByIdException(id)
 
-        return@suspendTransaction UserRespondDTO(
-            firstName = userDAO.firstName,
-            lastName = userDAO.lastName,
-            email = userDAO.email
-        )
+        return@suspendTransaction daoToResponseDTO(userDAO)
     }
 
     override suspend fun getUserList(): List<UserRespondDTO> {
         return suspendTransaction {
             UserDAO.all().map { userDAO ->
-                UserRespondDTO(
-                    id = userDAO.id.value,
-                    firstName = userDAO.firstName,
-                    lastName = userDAO.lastName,
-                    email = userDAO.email
-                )
+                daoToResponseDTO(userDAO)
             }
         }
     }
@@ -134,11 +96,18 @@ class UserRepository : UserContract {
 
             userDAO.passwordHash = hashedPassword
 
-            return@suspendTransaction UserRespondDTO(
-                id = userDAO.id.value,
-                firstName = userDAO.firstName,
-                lastName = userDAO.lastName,
-                email = userDAO.email
-            )
+            return@suspendTransaction daoToResponseDTO(userDAO)
         }
+
+    override suspend fun changeUserStatus(userLogoutData: UserStatusChangeDTO): UserRespondDTO = suspendTransaction {
+        val userDAO = UserDAO.findById(userLogoutData.id)
+            ?: throw UserNotFoundByIdException(userLogoutData.id)
+
+        val statusDAO = UserStatusDAO.find { UserStatusTable.name eq userLogoutData.status }.firstOrNull()
+            ?: throw IllegalStateException("Status '${userLogoutData.status}' not found in database")
+
+        userDAO.status = statusDAO
+
+        return@suspendTransaction daoToResponseDTO(userDAO)
+    }
 }

@@ -8,7 +8,7 @@ data class ResponseProtocol<T>(
     val code: Int,
     val message: String?,
     val data: T? = null,
-    val errors: List<String>? = null
+    val errors: List<Map<String, String?>> = emptyList()
 ) {
     companion object {
         fun <T> success(
@@ -27,7 +27,7 @@ data class ResponseProtocol<T>(
         fun failed(
             message: String? = "Error",
             code: Int = 400,
-            errors: List<String>? = null
+            errors: List<Map<String, String?>> = emptyList()
         ): ResponseProtocol<Nothing> {
             return ResponseProtocol(
                 status = "error",

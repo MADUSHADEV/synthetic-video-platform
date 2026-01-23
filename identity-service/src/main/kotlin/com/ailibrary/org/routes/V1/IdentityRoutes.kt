@@ -2,11 +2,13 @@ package com.ailibrary.org.routes.V1
 
 import com.ailibrary.org.dto.UserChangePasswordDTO
 import com.ailibrary.org.dto.UserDeleteDTO
+import com.ailibrary.org.dto.UserLogOutDTO
 import com.ailibrary.org.dto.UserLoginDTO
 import com.ailibrary.org.dto.UserSaveDTO
 import com.ailibrary.org.dto.UserUpdateDTO
 import com.ailibrary.org.protocol.ResponseProtocol
 import com.ailibrary.org.service.IdentityService
+import com.ailibrary.org.validation.PasswordRegex
 import com.ailibrary.org.validation.validateOrThrow
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -108,6 +110,25 @@ fun Application.configureIdentityRoutesV1() {
                         HttpStatusCode.OK,
                         ResponseProtocol.success(
                             message = "Password changed successfully",
+                            data = result,
+                            code = HttpStatusCode.OK.value
+                        )
+                    )
+
+                }
+
+                put("/logout") {
+
+                    val userData = call.receive<UserLogOutDTO>()
+
+                    userData.validateOrThrow()
+
+                    val result = identityService.Logout(userData)
+
+                    call.respond(
+                        HttpStatusCode.OK,
+                        ResponseProtocol.success(
+                            message = "User logged out successfully",
                             data = result,
                             code = HttpStatusCode.OK.value
                         )
