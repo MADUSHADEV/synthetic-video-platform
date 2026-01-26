@@ -26,3 +26,4 @@ rootProject.name = "ai_video_library"
 include("core")
 include("identity-service")
 include("db-mg-service")
+include("ingestion-service")

@@ -25,6 +25,7 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/db-mg-service" />
             <option value="$PROJECT_DIR$/identity-service" />
+            <option value="$PROJECT_DIR$/ingestion-service" />
             <option value="$PROJECT_DIR$/utils" />
           </set>
         </option>

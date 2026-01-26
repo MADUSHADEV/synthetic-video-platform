@@ -19,6 +19,42 @@ services:
     networks:
       - backend
 
+  ai_video_library_ingestion_db:
+    image: postgres:15
+    container_name: ai_video_library_ingestion_db
+    environment:
+      POSTGRES_DB: ${AI_VIDEO_LIBRARY_INGESTION_SERVICE_DB}
+      POSTGRES_USER: ${AI_VIDEO_LIBRARY_INGESTION_SERVICE_USER}
+      POSTGRES_PASSWORD: ${AI_VIDEO_LIBRARY_INGESTION_SERVICE_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - ai_video_library_ingestion_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${AI_VIDEO_LIBRARY_INGESTION_SERVICE_USER} -d ${AI_VIDEO_LIBRARY_INGESTION_SERVICE_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # --- Mongo Databases---#
+  #-- Video metadata DB --
+  ai_video_library_metadata_db:
+    image: mongo:7.0.28-jammy
+    container_name: ai_video_library_metadata_db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${AI_VIDEO_LIBRARY_METADATA_SERVICE_MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${AI_VIDEO_LIBRARY_METADATA_SERVICE_MONGO_PASSWORD}
+    restart: always
+    ports:
+      - "27018:27017"
+    depends_on:
+      - ai_video_library_ingestion_db
+    volumes:
+      - ai_video_library_metadata_db:/docker-entrypoint-initdb.d:ro
+      - ai_video_library_metadata_db:/data/db
+
   # --- MIGRATORS ---
   migrator-user_db:
     build:
@@ -70,3 +106,5 @@ networks:
 
 volumes:
   ai_video_library_user_db_data:
+  ai_video_library_metadata_db:
+  ai_video_library_ingestion_db_data:
