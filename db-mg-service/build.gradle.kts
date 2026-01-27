@@ -5,7 +5,7 @@ plugins {
     id("org.liquibase.gradle") version "2.2.0"
 }
 
-group = "com.ailibrary.org"
+group = "com.syntheticvideo.org"
 version = "0.0.1"
 
 repositories {

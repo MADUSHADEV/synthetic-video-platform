@@ -6,7 +6,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-group = "com.ailibrary.org"
+group = "com.syntheticvideo.org"
 version = "0.0.1"
 
 application {

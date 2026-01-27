@@ -4,7 +4,7 @@ plugins {
     id("buildsrc.convention.kotlin-jvm")
 }
 
-group = "com.ailibrary.org"
+group = "com.syntheticvideo.org"
 version = "0.0.1"
 
 repositories {

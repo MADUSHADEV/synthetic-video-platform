@@ -15,6 +15,7 @@ object Versions {
     const val koin = "4.1.2-Beta1"
     const val liquibase = "4.27.0"
     const val redis = "6.7.1.RELEASE"
+    const val azureSDK = "1.3.0"
 }
 
 object Ktor {
@@ -85,5 +86,10 @@ object Ktor {
 
     // Liquibase
     const val LiquibaseCore = "org.liquibase:liquibase-core:${Versions.liquibase}"
+
+    // Azure SDK BOM and dependencies
+    const val AzureSDK = "com.azure:azure-sdk-bom:${Versions.azureSDK}"
+    const val BlobStorage = "com.azure:azure-storage-blob"
+    const val Identity = "com.azure:azure-identity"
 
 }
