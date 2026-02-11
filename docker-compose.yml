@@ -55,7 +55,29 @@ services:
       - ai_video_library_metadata_db:/docker-entrypoint-initdb.d:ro
       - ai_video_library_metadata_db:/data/db
 
-  # --- MIGRATORS ---
+  # --- Raw data DB ---
+  ## --- Minio Object Storage --- ##
+  ai_video_library_minio:
+    image: minio/minio:latest
+    container_name: ai_video_library_minio
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: server /data --console-address ":9001"
+    volumes:
+      - ai_video_library_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+        # --- MIGRATORS ---
   migrator-user_db:
     build:
       context: ./db-mg-service
@@ -108,3 +130,4 @@ volumes:
   ai_video_library_user_db_data:
   ai_video_library_metadata_db:
   ai_video_library_ingestion_db_data:
+  ai_video_library_minio_data:
