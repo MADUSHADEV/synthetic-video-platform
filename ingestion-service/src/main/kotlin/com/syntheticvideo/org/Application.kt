@@ -2,6 +2,7 @@ package com.syntheticvideo.org
 
 
 import com.syntheticvideo.org.config.configureDatabases
+import com.syntheticvideo.org.config.configureMinio
 import io.ktor.server.application.Application
 
 fun main(args: Array<String>) {
@@ -10,5 +11,6 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     configureDatabases()
+    configureMinio()
 }
 

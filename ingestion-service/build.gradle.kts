@@ -47,6 +47,8 @@ dependencies {
     implementation(platform(Ktor.AzureSDK))
     implementation(Ktor.BlobStorage)
     implementation(Ktor.Identity)
+    implementation(Ktor.AWSKotlinSDK)
+    implementation(Ktor.CRTHttpEngine)
     testImplementation(kotlin("test"))
 }
 

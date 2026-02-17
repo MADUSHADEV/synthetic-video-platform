@@ -1,5 +1,7 @@
 package buildsrc.convention
 
+import org.gradle.api.tasks.diagnostics.ConventionReportTask
+
 object Versions {
     const val kotlin = "3.2.0"
     const val ktor = "3.3.2"
@@ -16,6 +18,8 @@ object Versions {
     const val liquibase = "4.27.0"
     const val redis = "6.7.1.RELEASE"
     const val azureSDK = "1.3.0"
+    const val AWSKotlinSDK = "s3:1.6.16"
+    const val CRTHttpEngine = "1.6.1"
 }
 
 object Ktor {
@@ -91,5 +95,11 @@ object Ktor {
     const val AzureSDK = "com.azure:azure-sdk-bom:${Versions.azureSDK}"
     const val BlobStorage = "com.azure:azure-storage-blob"
     const val Identity = "com.azure:azure-identity"
+
+    // Amazon S3 SDK
+    const val AWSKotlinSDK = "aws.sdk.kotlin:${Versions.AWSKotlinSDK}"
+
+    // HTTP Client Engine CRT
+    const val CRTHttpEngine   = "aws.smithy.kotlin:http-client-engine-crt:${Versions.CRTHttpEngine}"
 
 }

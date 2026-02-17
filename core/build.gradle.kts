@@ -27,6 +27,8 @@ dependencies {
     implementation(Ktor.LogbackClassic)
     implementation(Ktor.LettuceCore)
     implementation(Ktor.Valiktor)
+    implementation(Ktor.AWSKotlinSDK)
+    implementation(Ktor.CRTHttpEngine)
 
 
     testImplementation(kotlin("test"))
